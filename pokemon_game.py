@@ -17,7 +17,7 @@ black = (0,0,0)
 white = (255,255,255)
 
 # pokemon image
-pkm_img = pygame.image.load('blastoise.png')
+pkm_img = pygame.image.load('blue_eyes_white_dragon.png')
 
 # image sizes
 pkm_width = pkm_img.get_rect().width
@@ -43,17 +43,15 @@ def message_display(text):
     pygame.display.update()
     time.sleep(1)
 
-# initialize angle to 0
-angle = 0
-
 # game events set in the game_loop function
 def game_loop():
     
     # starting position
-    x = (display_width * 0.45)
-    y = (display_height * 0.7)
+    x = (display_width * 0.1)
+    y = (display_height * 0.5)
     x_change = 0
     y_change = 0
+    angle = 0
 
     gameExit = False
     
@@ -88,8 +86,8 @@ def game_loop():
         # prevent pokemon from running off the page
         if x <= 0:
             x = 0
-        if x >= (display_width - pkm_width):
-            x = (display_width - pkm_width)
+        if x >= ((display_width/2) - pkm_width - 20):
+            x = ((display_width/2) - pkm_width - 20)
 
         if y <= 0:
             y = 0
@@ -99,15 +97,14 @@ def game_loop():
         # rotate pokemon if mouse moves
         mouse_pos = pygame.mouse.get_pos()
         if (mouse_pos != initial_mouse_pos):
-            global angle
             angle = math.atan2(mouse_pos[1] - (y + pkm_height/2), mouse_pos[0] - (x + pkm_width/2)) * 57.2958
-            angle = -1 * (angle + 180)
             
-        pkm_img_rot = pygame.transform.rotate(pkm_img, angle)
+        pkm_img_rot = pygame.transform.rotate(pkm_img, -angle)
         
         # first paint background, then paint pokemon over background
         gameDisplay.fill(white)
         pkm(pkm_img_rot, int(x),int(y))
+        pygame.draw.rect(gameDisplay, black, [int(display_width/2), 0, 10, display_height])
 
         pygame.display.update()
         clock.tick(60)
