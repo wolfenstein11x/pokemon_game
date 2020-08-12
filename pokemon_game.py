@@ -1,6 +1,7 @@
 import pygame
 import time
 import math
+import random
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -17,8 +18,9 @@ black = (0,0,0)
 white = (255,255,255)
 blue = (0, 155, 255)
 
-# pokemon image
+# pokemon images
 pkm_img = pygame.image.load('blue_eyes_white_dragon.png')
+computer_pkm = pygame.image.load('charizard.png')
 
 # fireballs array: [ [angle, x_coord, y_coord], [angle, x_coord, y_coord], ... ]
 fireballs = []
@@ -26,6 +28,8 @@ fireballs = []
 # image sizes
 pkm_width = pkm_img.get_rect().width
 pkm_height = pkm_img.get_rect().height
+comp_pkm_width = computer_pkm.get_rect().width
+comp_pkm_height = computer_pkm.get_rect().height
 
 # function to display pokemon
 def pkm(img, x, y):
@@ -57,9 +61,19 @@ def game_loop():
     y_change = 0
     angle = 0
 
+    # computer starting position
+    comp_x = (display_width * 0.8)
+    comp_y = (display_height * 0.5)
+    comp_x_change = 0
+    comp_y_change = 0
+    comp_angle = 0
+
+    # local variables to help with the event loop
     gameExit = False
+    tick = 0
     
     while not gameExit:
+        tick += 1
         # mouse position used to rotate pokemon
         initial_mouse_pos = pygame.mouse.get_pos()
         
@@ -87,7 +101,8 @@ def game_loop():
             # add fireball to fireball array if mouse clicked
             if event.type == pygame.MOUSEBUTTONDOWN:
                 fireballs.append([angle, x+120, y+50])
-        
+
+        # player pokemon motion
         x += x_change
         y += y_change
 
@@ -109,6 +124,23 @@ def game_loop():
             
         pkm_img_rot = pygame.transform.rotate(pkm_img, -angle)
 
+        # computer pokemon motion
+        if (tick % 50 == 0):
+            comp_x_change = 5 * random.randint(-1, 1)
+            comp_y_change = 5 * random.randint(-1, 1)
+        comp_x += comp_x_change
+        comp_y += comp_y_change
+
+        # prevent computer pokemon from running off the page
+        if comp_x <= (display_width / 2) + 20:
+           comp_x = (display_width / 2) + 20
+        if comp_x >= (display_width - comp_pkm_width):
+            comp_x = (display_width - comp_pkm_width)
+        if comp_y <= 0:
+            comp_y = 0
+        if comp_y >= (display_height - comp_pkm_height):
+            comp_y = (display_height - comp_pkm_height)
+
         # shoot all the fireballs in the fireball array, if any
         for fireball in fireballs:
             idx = 0
@@ -124,6 +156,7 @@ def game_loop():
         # paint background, pokemon, line, and fireballs
         gameDisplay.fill(white)
         pkm(pkm_img_rot, int(x),int(y))
+        pkm(computer_pkm, int(comp_x), int(comp_y))
         pygame.draw.rect(gameDisplay, black, [int(display_width/2), 0, 10, display_height])
         for projectile in fireballs:
             pygame.draw.circle(gameDisplay, blue, [int(projectile[1]), int(projectile[2])], 10)
