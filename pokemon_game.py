@@ -15,9 +15,13 @@ pygame.display.set_caption('Pokemon Game')
 # colors
 black = (0,0,0)
 white = (255,255,255)
+blue = (0, 155, 255)
 
 # pokemon image
 pkm_img = pygame.image.load('blue_eyes_white_dragon.png')
+
+# fireballs array: [ [angle, x_coord, y_coord], [angle, x_coord, y_coord], ... ]
+fireballs = []
 
 # image sizes
 pkm_width = pkm_img.get_rect().width
@@ -79,6 +83,10 @@ def game_loop():
                     x_change = 0
                 if event.key == pygame.K_DOWN or event.key == pygame.K_UP:
                     y_change = 0
+
+            # add fireball to fireball array if mouse clicked
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                fireballs.append([angle, x+120, y+50])
         
         x += x_change
         y += y_change
@@ -100,11 +108,25 @@ def game_loop():
             angle = math.atan2(mouse_pos[1] - (y + pkm_height/2), mouse_pos[0] - (x + pkm_width/2)) * 57.2958
             
         pkm_img_rot = pygame.transform.rotate(pkm_img, -angle)
+
+        # shoot all the fireballs in the fireball array, if any
+        for fireball in fireballs:
+            idx = 0
+            velx = math.cos(fireball[0] / 57.2958)*10
+            vely = math.sin(fireball[0] / 57.2958)*10
+            fireball[1] += velx
+            fireball[2] += vely
+            # remove fireballs from array when they go off screen
+            if fireball[1] <-10 or fireball[1] >810 or fireball[2] <-10 or fireball[2] >610:
+                fireballs.pop(idx)
+            idx += 1
         
-        # first paint background, then paint pokemon over background
+        # paint background, pokemon, line, and fireballs
         gameDisplay.fill(white)
         pkm(pkm_img_rot, int(x),int(y))
         pygame.draw.rect(gameDisplay, black, [int(display_width/2), 0, 10, display_height])
+        for projectile in fireballs:
+            pygame.draw.circle(gameDisplay, blue, [int(projectile[1]), int(projectile[2])], 10)
 
         pygame.display.update()
         clock.tick(60)
