@@ -1,7 +1,9 @@
 import pygame
 import time
+import math
 
 pygame.init()
+clock = pygame.time.Clock()
 
 # dimensions of game window
 display_width = 800
@@ -14,16 +16,16 @@ pygame.display.set_caption('Pokemon Game')
 black = (0,0,0)
 white = (255,255,255)
 
-# image sizes
-pkm_width = 136
-pkm_height = 151
-
-clock = pygame.time.Clock()
+# pokemon image
 pkm_img = pygame.image.load('blastoise.png')
 
+# image sizes
+pkm_width = pkm_img.get_rect().width
+pkm_height = pkm_img.get_rect().height
+
 # function to display pokemon
-def pkm(x,y):
-    gameDisplay.blit(pkm_img, (x,y))
+def pkm(img, x, y):
+    gameDisplay.blit(img, (x,y))
 
 # helper function for message_display
 def text_objects(text, font):
@@ -39,7 +41,7 @@ def message_display(text):
     gameDisplay.blit(TextSurf, TextRect)
 
     pygame.display.update()
-    time.sleep(2)
+    time.sleep(1)
 
 # game events set in the game_loop function
 def game_loop():
@@ -88,9 +90,15 @@ def game_loop():
         if y >= (display_height - pkm_height):
             y = (display_height - pkm_height)
 
+        # use mouse to rotate pokemon
+        mouse_pos = pygame.mouse.get_pos()
+        angle = math.atan2(mouse_pos[1] - (y + pkm_height/2), mouse_pos[0] - (x + pkm_width/2)) * 57.2958
+        angle = -1 * (angle + 180)
+        pkm_img_rot = pygame.transform.rotate(pkm_img, angle)
+
         # first paint background, then paint pokemon over background
         gameDisplay.fill(white)
-        pkm(int(x),int(y))
+        pkm(pkm_img_rot, int(x),int(y))
 
         pygame.display.update()
         clock.tick(60)
