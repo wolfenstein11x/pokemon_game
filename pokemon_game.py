@@ -43,6 +43,9 @@ def message_display(text):
     pygame.display.update()
     time.sleep(1)
 
+# initialize angle to 0
+angle = 0
+
 # game events set in the game_loop function
 def game_loop():
     
@@ -55,6 +58,9 @@ def game_loop():
     gameExit = False
     
     while not gameExit:
+        # mouse position used to rotate pokemon
+        initial_mouse_pos = pygame.mouse.get_pos()
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 gameExit = True
@@ -90,12 +96,15 @@ def game_loop():
         if y >= (display_height - pkm_height):
             y = (display_height - pkm_height)
 
-        # use mouse to rotate pokemon
+        # rotate pokemon if mouse moves
         mouse_pos = pygame.mouse.get_pos()
-        angle = math.atan2(mouse_pos[1] - (y + pkm_height/2), mouse_pos[0] - (x + pkm_width/2)) * 57.2958
-        angle = -1 * (angle + 180)
+        if (mouse_pos != initial_mouse_pos):
+            global angle
+            angle = math.atan2(mouse_pos[1] - (y + pkm_height/2), mouse_pos[0] - (x + pkm_width/2)) * 57.2958
+            angle = -1 * (angle + 180)
+            
         pkm_img_rot = pygame.transform.rotate(pkm_img, angle)
-
+        
         # first paint background, then paint pokemon over background
         gameDisplay.fill(white)
         pkm(pkm_img_rot, int(x),int(y))
