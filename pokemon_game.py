@@ -151,6 +151,10 @@ def game_loop():
             # remove fireballs from array when they go off screen
             if fireball[1] <-10 or fireball[1] >810 or fireball[2] <-10 or fireball[2] >610:
                 fireballs.pop(idx)
+            # remove fireball from array if it hits target
+            if (fireball[1] > (comp_x + 5) and fireball[1] < (comp_x + 65)):
+                if (fireball[2] > (comp_y + 15) and fireball[2] < (comp_y + 90)):
+                    fireballs.pop(idx)
             idx += 1
         
         # paint background, pokemon, line, and fireballs
