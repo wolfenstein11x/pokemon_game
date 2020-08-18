@@ -18,6 +18,8 @@ black = (0,0,0)
 white = (255,255,255)
 blue = (0, 155, 255)
 red = (255, 155, 0)
+full_red = (255, 0, 0)
+full_blue = (0, 0, 255)
 
 # pokemon images
 pkm_img = pygame.image.load('blue_eyes_white_dragon.png')
@@ -53,6 +55,17 @@ def message_display(text):
     pygame.display.update()
     time.sleep(1)
 
+# full health global variable
+full_health = 200
+
+# function to display health meter
+def display_health(surf, x, y, color, health):
+    pygame.draw.rect(surf, color, [x, y, health, 20])
+    pygame.draw.lines(surf, black, 0, [(x,y), (x,y+20)], 2)
+    pygame.draw.lines(surf, black, 0, [(x,y), (x+full_health,y)], 2)
+    pygame.draw.lines(surf, black, 0, [(x,y+20), (x+full_health,y+20)], 2)
+    pygame.draw.lines(surf, black, 0, [(x+full_health,y), (x+full_health,y+20)], 2)
+
 # game events set in the game_loop function
 def game_loop():
     
@@ -73,6 +86,8 @@ def game_loop():
     # local variables to help with the event loop
     gameExit = False
     tick = 0
+    comp_health = full_health
+    player_health = full_health
     
     while not gameExit:
         tick += 1
@@ -161,6 +176,9 @@ def game_loop():
             if (fireball[1] > (comp_x + 5) and fireball[1] < (comp_x + 65)):
                 if (fireball[2] > (comp_y + 15) and fireball[2] < (comp_y + 90)):
                     fireballs.pop(idx)
+                    # reduce computer health since it got hit
+                    comp_health -= 5
+                    
             idx += 1
 
         # shoot all the fireballs in the comp_fireball array
@@ -174,10 +192,14 @@ def game_loop():
             if comp_fireball[1] <-10 or comp_fireball[1] >810 or comp_fireball[2] <-10 or comp_fireball[2] >610:
                 comp_fireballs.pop(comp_idx)
             # remove fireball from array if it hits target
-
+            if (comp_fireball[1] > (x + 5) and comp_fireball[1] < (x + 95)):
+                if (comp_fireball[2] > (y + 15) and comp_fireball[2] < (y + 120)):
+                    comp_fireballs.pop(comp_idx)
+                    # reduce player health since it got hit
+                    player_health -= 5
             comp_idx += 1
         
-        # paint background, pokemon, dividing line, and fireballs
+        # paint background, pokemon, dividing line, and fireballs, and health meters
         gameDisplay.fill(white)
         pkm(pkm_img_rot, int(x),int(y))
         pkm(computer_pkm, int(comp_x), int(comp_y))
@@ -186,7 +208,10 @@ def game_loop():
             pygame.draw.circle(gameDisplay, blue, [int(projectile[1]), int(projectile[2])], 10)
         for comp_projectile in comp_fireballs:
             pygame.draw.circle(gameDisplay, red, [int(comp_projectile[1]), int(comp_projectile[2])], 10)
-            #print("fire!")
+
+        display_health(gameDisplay, (display_width - (full_health + 20)), 30, full_red, comp_health)
+        display_health(gameDisplay, 20, 30, full_blue, player_health)
+        
         pygame.display.update()
         clock.tick(60)
 
