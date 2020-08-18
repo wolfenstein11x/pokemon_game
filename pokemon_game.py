@@ -17,6 +17,7 @@ pygame.display.set_caption('Pokemon Game')
 black = (0,0,0)
 white = (255,255,255)
 blue = (0, 155, 255)
+red = (255, 155, 0)
 
 # pokemon images
 pkm_img = pygame.image.load('blue_eyes_white_dragon.png')
@@ -24,6 +25,7 @@ computer_pkm = pygame.image.load('charizard.png')
 
 # fireballs array: [ [angle, x_coord, y_coord], [angle, x_coord, y_coord], ... ]
 fireballs = []
+comp_fireballs = []
 
 # image sizes
 pkm_width = pkm_img.get_rect().width
@@ -101,6 +103,10 @@ def game_loop():
             # add fireball to fireball array if mouse clicked
             if event.type == pygame.MOUSEBUTTONDOWN:
                 fireballs.append([angle, x+120, y+50])
+                
+            # add fireball to comp_fireball array at random time
+            if (tick % 10 == 0):
+                comp_fireballs.append([3.1415, comp_x+20, comp_y+20])
 
         # player pokemon motion
         x += x_change
@@ -156,15 +162,31 @@ def game_loop():
                 if (fireball[2] > (comp_y + 15) and fireball[2] < (comp_y + 90)):
                     fireballs.pop(idx)
             idx += 1
+
+        # shoot all the fireballs in the comp_fireball array
+        for comp_fireball in comp_fireballs:
+            comp_idx = 0
+            comp_velx = -math.cos(comp_fireball[0] / 57.2958)*10
+            comp_vely = math.sin(comp_fireball[0] / 57.2958)*10
+            comp_fireball[1] += comp_velx
+            comp_fireball[2] += comp_vely
+            # remove comp_fireballs from array when they off screen
+            if comp_fireball[1] <-10 or comp_fireball[1] >810 or comp_fireball[2] <-10 or comp_fireball[2] >610:
+                comp_fireballs.pop(comp_idx)
+            # remove fireball from array if it hits target
+
+            comp_idx += 1
         
-        # paint background, pokemon, line, and fireballs
+        # paint background, pokemon, dividing line, and fireballs
         gameDisplay.fill(white)
         pkm(pkm_img_rot, int(x),int(y))
         pkm(computer_pkm, int(comp_x), int(comp_y))
         pygame.draw.rect(gameDisplay, black, [int(display_width/2), 0, 10, display_height])
         for projectile in fireballs:
             pygame.draw.circle(gameDisplay, blue, [int(projectile[1]), int(projectile[2])], 10)
-
+        for comp_projectile in comp_fireballs:
+            pygame.draw.circle(gameDisplay, red, [int(comp_projectile[1]), int(comp_projectile[2])], 10)
+            #print("fire!")
         pygame.display.update()
         clock.tick(60)
 
