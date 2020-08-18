@@ -25,6 +25,9 @@ full_blue = (0, 0, 255)
 pkm_img = pygame.image.load('blue_eyes_white_dragon.png')
 computer_pkm = pygame.image.load('charizard.png')
 
+# player_wins is a global bool to keep track of who won
+player_wins = True
+
 # fireballs array: [ [angle, x_coord, y_coord], [angle, x_coord, y_coord], ... ]
 fireballs = []
 comp_fireballs = []
@@ -68,6 +71,9 @@ def display_health(surf, x, y, color, health):
 
 # game events set in the game_loop function
 def game_loop():
+
+    # declare any global variables needed
+    global player_wins
     
     # starting position
     x = (display_width * 0.1)
@@ -81,7 +87,7 @@ def game_loop():
     comp_y = (display_height * 0.5)
     comp_x_change = 0
     comp_y_change = 0
-    comp_angle = 0
+    comp_angle = 3.1415
 
     # local variables to help with the event loop
     gameExit = False
@@ -121,7 +127,8 @@ def game_loop():
                 
             # add fireball to comp_fireball array at random time
             if (tick % 10 == 0):
-                comp_fireballs.append([3.1415, comp_x+20, comp_y+20])
+                comp_angle = -math.atan2(comp_y - y, comp_x - x)*57.2958
+                comp_fireballs.append([comp_angle, comp_x+20, comp_y+20])
 
         # player pokemon motion
         x += x_change
@@ -133,8 +140,8 @@ def game_loop():
         if x >= ((display_width/2) - pkm_width - 20):
             x = ((display_width/2) - pkm_width - 20)
 
-        if y <= 0:
-            y = 0
+        if y <= 55:
+            y = 55
         if y >= (display_height - pkm_height):
             y = (display_height - pkm_height)
 
@@ -157,8 +164,8 @@ def game_loop():
            comp_x = (display_width / 2) + 20
         if comp_x >= (display_width - comp_pkm_width):
             comp_x = (display_width - comp_pkm_width)
-        if comp_y <= 0:
-            comp_y = 0
+        if comp_y <= 55:
+            comp_y = 55
         if comp_y >= (display_height - comp_pkm_height):
             comp_y = (display_height - comp_pkm_height)
 
@@ -178,7 +185,10 @@ def game_loop():
                     fireballs.pop(idx)
                     # reduce computer health since it got hit
                     comp_health -= 5
-                    
+                    if (comp_health == 0):
+                        player_wins = True
+                        gameExit = True
+                        
             idx += 1
 
         # shoot all the fireballs in the comp_fireball array
@@ -197,6 +207,10 @@ def game_loop():
                     comp_fireballs.pop(comp_idx)
                     # reduce player health since it got hit
                     player_health -= 5
+                    if (player_health == 0):
+                        player_wins = False
+                        gameExit = True
+                        
             comp_idx += 1
         
         # paint background, pokemon, dividing line, and fireballs, and health meters
@@ -219,5 +233,10 @@ def game_loop():
 message_display("Round 1")
 message_display("Fight!")
 game_loop()
+if (player_wins == True):
+    message_display("You win!")
+else:
+    message_display("You lose!")
+time.sleep(2)
 pygame.quit()
 quit()
